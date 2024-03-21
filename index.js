@@ -55,7 +55,9 @@ let top10Movies = [
 app.use(morgan('combined', { stream: accessLogStream }));
 
 //Below function automatically routes all requests for static files to their corresponding files within a certain folder on the server (in this case, the “public” folder).
-app.use(express.static('public'));
+//express.static is used to access static page, here the documentation page from the public folder
+//app.use('/documentation', express.static(public));
+);
 
 app.get('/movies', (req, res) => {
     res.json(top10Movies);
@@ -65,8 +67,7 @@ app.get('/', (req, res) => {
     res.send('Welcome to Movie Flix homepage')
 });
 
-//express.static is used to access static page, here the documentation page from the public folder
-//app.use('/documentation', express.static(public));
+app.use(express.static('public');
 
 app.use((err, req, res, next) => {
     console.error(err.stack);
