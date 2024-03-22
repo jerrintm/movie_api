@@ -1,16 +1,18 @@
 const express = require('express');
-fs = require('fs');
-morgan = require('morgan');
-path = require('path');
+bodyParser = require('body-parser');
+uuid = require('uuid');
+
 
 const app = express();
-const uuid = require('uuid');
 
-//app.use(bodyParser.json());
+app.use(bodyParser.json());
+
+
+
 
 // create a write stream (in append mode)
 // a ‘log.txt’ file is created in root directory
-const accessLogStream = fs.createWriteStream(path.join(__dirname, 'log.txt'), { flags: 'a' });
+//const accessLogStream = fs.createWriteStream(path.join(__dirname, 'log.txt'), { flags: 'a' });
 
 
 
@@ -91,27 +93,30 @@ let users = [
         userid: 'jdoe',
         password: 'xyz',
         email: 'jdoe@gmail.com',
-        DOB: '02/10/1970'
+        DOB: '02/10/1970',
+        FavoriteMovie: ''
     },
     {
         name: 'Mat Dav',
         userid: 'mdav',
         password: 'xyz1',
         email: 'mdav@gmail.com',
-        DOB: '02/10/1970'
+        DOB: '02/10/1970',
+        FavoriteMovie: ''
     },
     {
         name: 'Colin Neal',
         userid: 'cneal',
         password: 'xyz2',
         email: 'cneal@gmail.com',
-        DOB: '02/10/1970'
+        DOB: '02/10/1970',
+        FavoriteMovie: ''
     }
 ];
 
 
 // setup the logger
-app.use(morgan('combined', { stream: accessLogStream }));
+//app.use(morgan('combined', { stream: accessLogStream }));
 
 //Below function automatically routes all requests for static files to their corresponding files within a certain folder on the server (in this case, the “public” folder).
 //express.static is used to access static page, here the documentation page from the public folder
@@ -176,7 +181,7 @@ app.post('/users', (req, res) => {
 });
 
 // Update the "username" of a user
-app.put('/users/:name/:username', (req, res) => {
+app.put('/users/:name/:userid', (req, res) => {
     let user = users.find((user) => { return user.name === req.params.name });
 
     if (user) {
@@ -184,6 +189,40 @@ app.put('/users/:name/:username', (req, res) => {
         res.status(201).send('user ' + req.params.name + ' has the userid updated to ' + req.params.userid);
     } else {
         res.status(404).send('User with the name' + req.params.name + ' was not found.');
+    }
+});
+
+// User adds a movie to their favorite list
+app.put('/users/:name/:FavoriteMovie', (req, res) => {
+    let user = users.find((user) => { return user.name === req.params.name });
+
+    if (user) {
+        user.userid[req.params.userid] = parseInt(req.params.userid);
+        res.status(201).send('user ' + req.params.name + ' has added movie to favorite list');
+    } else {
+        res.status(404).send('Movie couldnt be added to the favorite list');
+    }
+});
+
+//User removes a movie from favorie list
+app.put('/users/:name/:FavoriteMovie', (req, res) => {
+    let user = users.find((user) => { return user.name === req.params.name });
+
+    if (user) {
+        user.userid[req.params.userid] = parseInt(req.params.userid);
+        res.status(201).send('user ' + req.params.name + ' has removed a movie from favorite list');
+    } else {
+        res.status(404).send('Movie couldnt be removed from the favorite list');
+    }
+});
+
+// Deletes a student from our list by ID
+app.delete('/users/:userid', (req, res) => {
+    let user = users.find((user) => { return user.id === req.params.id });
+
+    if (user) {
+        users = users.filter((obj) => { return obj.id !== req.params.id });
+        res.status(201).send('User ' + req.params.id + ' was deleted.');
     }
 });
 
