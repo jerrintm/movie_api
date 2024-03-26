@@ -19,43 +19,53 @@ app.use(bodyParser.json());
 let movies = [
     {
         title: 'The Godfather',
-        Director: 'Francis Ford Coppola'
+        Director: 'Francis Ford Coppola',
+        genre: 'Crime'
     },
     {
         title: 'Avatar',
-        Director: 'James Cameron'
+        Director: 'James Cameron',
+        genre: 'Action'
     },
     {
         title: 'Jurassic World',
-        Director: 'Colin Trevorrow'
+        Director: 'Colin Trevorrow',
+        genre: 'Action'
     },
     {
         title: 'The Dark Knight',
-        Director: 'Christopher Nolan'
+        Director: 'Christopher Nolan',
+        genre: 'Action'
     },
     {
         title: 'Forest Gump',
-        Director: 'Robert Zemeckis'
+        Director: 'Robert Zemeckis',
+        genre: 'comedy'
     },
     {
         title: 'Titanic',
-        Director: 'James Cameron'
+        Director: 'James Cameron',
+        genre: 'romance'
     },
     {
         title: 'The Shawshank Redemption',
-        Director: 'Frank Darabont'
+        Director: 'Frank Darabont',
+        genre: 'Thriller'
     },
     {
         title: 'Inception',
-        Director: 'Christopher Nolan'
+        Director: 'Christopher Nolan',
+        genre: 'Action'
     },
     {
         title: 'The Lion King',
-        Director: 'Rob Minkoff'
+        Director: 'Rob Minkoff',
+        genre: 'musical'
     },
     {
         title: 'Black Panther',
-        Director: 'Ryan Coogler'
+        Director: 'Ryan Coogler',
+        action: 'action'
     }
 ];
 
@@ -94,7 +104,7 @@ let users = [
         password: 'xyz',
         email: 'jdoe@gmail.com',
         DOB: '02/10/1970',
-        FavoriteMovie: ''
+        FavoriteMovies: []
     },
     {
         name: 'Mat Dav',
@@ -102,7 +112,7 @@ let users = [
         password: 'xyz1',
         email: 'mdav@gmail.com',
         DOB: '02/10/1970',
-        FavoriteMovie: ''
+        FavoriteMovies: []
     },
     {
         name: 'Colin Neal',
@@ -110,7 +120,7 @@ let users = [
         password: 'xyz2',
         email: 'cneal@gmail.com',
         DOB: '02/10/1970',
-        FavoriteMovie: ''
+        FavoriteMovies: []
     }
 ];
 
@@ -141,13 +151,11 @@ app.get('/users', (req, res) => {
 
 //get all details of a specific movie title
 app.get('/movies/:title', (req, res) => {
-    console.log("Movie Title");
     res.json(movies.find((movie) => { return movie.title === req.params.title }));
 });
 
 //get all details of a specific director
 app.get('/directors/:name', (req, res) => {
-    console.log("Movie Title");
     res.json(directors.find((director) => { return director.name === req.params.name }));
 });
 
@@ -181,23 +189,27 @@ app.post('/users', (req, res) => {
 });
 
 // Update the "username" of a user
-app.put('/users/:name/:userid', (req, res) => {
-    let user = users.find((user) => { return user.name === req.params.name });
+app.put('/users/:userid', (req, res) => {
+    let user = users.find((user) => { return user.userid === req.params.userid });
 
     if (user) {
-        user.userid[req.params.userid] = parseInt(req.params.userid);
-        res.status(201).send('user ' + req.params.name + ' has the userid updated to ' + req.params.userid);
+        user.name = req.body.name;
+        res.status(201).send('Name of userid ' + user.userid + ' has been updated to ' + user.name);
     } else {
-        res.status(404).send('User with the name' + req.params.name + ' was not found.');
+        res.status(404).send('User with the userid ' + req.params.userid + ' was not found.');
     }
 });
 
 // User adds a movie to their favorite list
-app.put('/users/:name/:FavoriteMovie', (req, res) => {
-    let user = users.find((user) => { return user.name === req.params.name });
 
-    if (user) {
-        user.userid[req.params.userid] = parseInt(req.params.userid);
+app.put('/users/:name/:FavoriteMovieTitle', (req, res) => {
+    let user = users.find((user) => { return user.userid === req.params.name });
+    const movie = movies.find((movie) => { return movie.title === req.params.FavoriteMovieTitle });
+
+
+    if (user && movie) {
+        user.FavoriteMovies.push(movie);
+
         res.status(201).send('user ' + req.params.name + ' has added movie to favorite list');
     } else {
         res.status(404).send('Movie couldnt be added to the favorite list');
@@ -205,24 +217,25 @@ app.put('/users/:name/:FavoriteMovie', (req, res) => {
 });
 
 //User removes a movie from favorie list
-app.put('/users/:name/:FavoriteMovie', (req, res) => {
-    let user = users.find((user) => { return user.name === req.params.name });
+app.delete('/users/:name/:FavoriteMovie', (req, res) => {
+    let user = users.find((user) => { return user.userid === req.params.name });
+
 
     if (user) {
-        user.userid[req.params.userid] = parseInt(req.params.userid);
+        user.FavoriteMovies = user.FavoriteMovies.filter((movie) => { return movie.title !== req.params.FavoriteMovie });
         res.status(201).send('user ' + req.params.name + ' has removed a movie from favorite list');
     } else {
         res.status(404).send('Movie couldnt be removed from the favorite list');
     }
 });
 
-// Deletes a student from our list by ID
+// Deletes a user from our list by ID
 app.delete('/users/:userid', (req, res) => {
     let user = users.find((user) => { return user.id === req.params.id });
 
     if (user) {
         users = users.filter((obj) => { return obj.id !== req.params.id });
-        res.status(201).send('User ' + req.params.id + ' was deleted.');
+        res.status(201).send('User ' + req.params.userid + ' was deleted.');
     }
 });
 
