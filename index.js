@@ -1,11 +1,21 @@
+const mongoose = require('mongoose');
+const Models = require('./models.js');
+
+const Movies = Models.Movie;
+const Users = Models.User; mongoose.connect('mongodb://localhost:27017/cfdb', { useNewUrlParser: true, useUnifiedTopology: true });
+
+
+
 const express = require('express');
 bodyParser = require('body-parser');
 uuid = require('uuid');
 
 
 const app = express();
-
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 
 
@@ -16,7 +26,7 @@ app.use(bodyParser.json());
 
 
 
-let movies = [
+/*let movies = [
     {
         title: 'The Godfather',
         Director: 'Francis Ford Coppola',
@@ -124,6 +134,7 @@ let users = [
     }
 ];
 
+*/
 
 // setup the logger
 //app.use(morgan('combined', { stream: accessLogStream }));
@@ -133,26 +144,62 @@ let users = [
 //app.use('/documentation', express.static(public));
 
 
-//get list of all movies
-app.get('/movies', (req, res) => {
-    //  console.log("Movie List");
-    res.json(movies);
+//////get list of all movies
+//app.get('/movies', (req, res) => {
+//    //  console.log("Movie List");
+//    res.json(movies);
+//});
+
+app.get('/movies', async (req, res) => {
+    await Mpvies.find()
+        .then((users) => {
+            res.status(201).json(movies);
+        })
+        .catch((err) => {
+            console.error(err);
+            res.status(500).send('Error: ' + err);
+        });
 });
+
+
 
 //get list of all directors
 app.get('/directors', (req, res) => {
     res.json(directors);
 });
 
-//get list of all users
-app.get('/users', (req, res) => {
-    res.json(users);
+//////get list of all users
+//app.get('/users', (req, res) => {
+//    res.json(users);
+//});
+
+app.get('/users', async (req, res) => {
+    await Users.find()
+        .then((users) => {
+            res.status(201).json(users);
+        })
+        .catch((err) => {
+            console.error(err);
+            res.status(500).send('Error: ' + err);
+        });
 });
 
+
 //get all details of a specific movie title
-app.get('/movies/:title', (req, res) => {
-    res.json(movies.find((movie) => { return movie.title === req.params.title }));
+//app.get('/movies/:title', (req, res) => {
+//    res.json(movies.find((movie) => { return movie.title === req.params.title }));
+//});
+app.get('/movies/:title', async (req, res) => {
+    await Users.findOne({ Username: req.params.Title })
+        .then((movie) => {
+            res.json(movie);
+        })
+        .catch((err) => {
+            console.error(err);
+            res.status(500).send('Error: ' + err);
+        });
 });
+
 
 //get all details of a specific director
 app.get('/directors/:name', (req, res) => {
@@ -174,19 +221,69 @@ app.post('/movies', (req, res) => {
 });
 
 
-// Adds data for a new user to our list of users.
-app.post('/users', (req, res) => {
-    let newuser = req.body;
+////// Adds data for a new user to our list of users.
+//app.post('/users', (req, res) => {
+//    let newuser = req.body;
 
-    if (!newuser.name) {
-        const message = 'Missing name in request body';
-        res.status(400).send(message);
-    } else {
-        newuser.id = uuid.v4();
-        users.push(newuser);
-        res.status(201).send(newuser);
-    }
+//    if (!newuser.name) {
+//        const message = 'Missing name in request body';
+//        res.status(400).send(message);
+//    } else {
+//        newuser.id = uuid.v4();
+//        users.push(newuser);
+//        res.status(201).send(newuser);
+//    }
+//});
+
+//Add a user
+/* We’ll expect JSON in this format
+{
+  ID: Integer,
+  Username: String,
+  Password: String,
+  Email: String,
+  Birthday: Date
+}*/
+app.post('/users', async (req, res) => {
+    await users.findOne({ Username: req.body.Username })
+        .then((user) => {
+            if (user) {
+                return res.status(400).send(req.body.Username + 'already exists');
+            } else {
+                Users
+                    .create({
+                        username: req.body.Username,
+                        password: req.body.Password,
+                        email: req.body.Email,
+                        birthday: req.body.Birthday
+                    })
+                    .then((user) => { res.status(201).json(user) })
+                    .catch((error) => {
+                        console.error(error);
+                        res.status(500).send('Error: ' + error);
+                    })
+            }
+        })
+        .catch((error) => {
+            console.error(error);
+            res.status(500).send('Error: ' + error);
+        });
 });
+
+
+// Get a user by username
+app.get('/users/:Username', async (req, res) => {
+    await Users.findOne({ Username: req.params.Username })
+        .then((user) => {
+            res.json(user);
+        })
+        .catch((err) => {
+            console.error(err);
+            res.status(500).send('Error: ' + err);
+        });
+});
+
+
 
 // Update the "username" of a user
 app.put('/users/:userid', (req, res) => {
