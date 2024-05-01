@@ -24,6 +24,7 @@ let auth = require('./auth')(app);  /* To import auth.js file into this project.
 const passport = require('passport');  /* This and below line is to import the passport.js file into this project */
 require('./passport');
 
+const { check, validationResult } = require('express-validator');  /* Library imported for validating user input  */
 // create a write stream (in append mode)
 // a ‘log.txt’ file is created in root directory
 //const accessLogStream = fs.createWriteStream(path.join(__dirname, 'log.txt'), { flags: 'a' });
@@ -205,7 +206,7 @@ app.get('/users', async (req, res) => {
 //app.get('/movies/:title', (req, res) => {
 //    res.json(movies.find((movie) => { return movie.title === req.params.title }));
 //});
-app.get('/movies/:title', async (req, res) => {
+app.get('/movies/:title', passport.authenticate('jwt', { session: false }), async (req, res) => {
     /* below line searches the movies table for a match on 'title' with the value from 'req.params.title'.Here 'req.params.title' contains the value in ':title'  */
     await Movies.findOne({ title: req.params.title })
         /* below 'movie' is a variable that stores the results from the above line of code, which is a movie record found to match the value in req.params.title. Also 'then' would execute once the code above it completes execution */
@@ -220,7 +221,7 @@ app.get('/movies/:title', async (req, res) => {
 });
 
 //get details about a genre --------
-app.get('/genre/:name', async (req, res) => {
+app.get('/genre/:name', passport.authenticate('jwt', { session: false }), async (req, res) => {
     console.log(req.params);  /* Code can be used to display contents passed from the API call using tools like postman */
     await Movies.findOne({ 'genre.name': req.params.name })
         .then((movie) => {
@@ -235,7 +236,7 @@ app.get('/genre/:name', async (req, res) => {
 
 
 //get all details of a specific director --------
-app.get('/directors/:name', async (req, res) => {
+app.get('/directors/:name', passport.authenticate('jwt', { session: false }), async (req, res) => {
     console.log(req.params);
     await Movies.findOne({ 'director.Name': req.params.name })
         .then((movie) => {
@@ -297,31 +298,52 @@ app.post('/movies', async (req, res) => {
   Email: String,
   Birthday: Date
 }*/
-app.post('/users', async (req, res) => {
-    await Users.findOne({ username: req.body.username })
-        .then((user) => {
-            if (user) {
-                return res.status(400).send(req.body.username + ' already exists');
-            } else {
-                Users
-                    .create({
-                        username: req.body.username,
-                        password: req.body.password,
-                        email: req.body.email,
-                        birthday: req.body.birthday
-                    })
-                    .then((user) => { res.status(201).json(user) })
-                    .catch((error) => {
-                        console.error(error);
-                        res.status(500).send('Error: ' + error);
-                    })
-            }
-        })
-        .catch((error) => {
-            console.error(error);
-            res.status(500).send('Error: ' + error);
-        });
-});
+app.post('/users',
+/*// Validation logic here for request
+  //you can either use a chain of methods like .not().isEmpty()
+  //which means "opposite of isEmpty" in plain english "is not empty"
+  //or use .isLength({min: 5}) which means
+  //minimum value of 5 characters are only allowed
+  [
+    check('Username', 'Username is required').isLength({min: 5}),
+    check('Username', 'Username contains non alphanumeric characters - not allowed.').isAlphanumeric(),
+    check('Password', 'Password is required').not().isEmpty(),
+    check('Email', 'Email does not appear to be valid').isEmail()
+  ], ---Task 2.10----   */ async (req, res) => {
+
+        /*    // check the validation object for errors
+            let errors = validationResult(req);
+        
+            if (!errors.isEmpty()) {
+              return res.status(422).json({ errors: errors.array() });
+            }  ---Task 2.10----- */
+        /*    let hashedPassword = Users.hashPassword(req.body.Password);      Task 2.10  */
+        await Users.findOne({ username: req.body.username })
+            .then((user) => {
+                if (user) {
+                    //If the user is found, send a response that it already exists
+                    return res.status(400).send(req.body.username + ' already exists');  // Search to see if a user with the requested username already exists
+                } else {
+                    Users
+                        .create({
+                            username: req.body.username,
+                            password: req.body.password,
+                            /*  password: hashedpassword,      Task 2.10   */
+                            email: req.body.email,
+                            birthday: req.body.birthday
+                        })
+                        .then((user) => { res.status(201).json(user) })
+                        .catch((error) => {
+                            console.error(error);
+                            res.status(500).send('Error: ' + error);
+                        })
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+                res.status(500).send('Error: ' + error);
+            });
+    });
 
 
 // Get a user by username
@@ -349,7 +371,7 @@ app.get('/users/:username', async (req, res) => {
 //        res.status(404).send('User with the userid ' + req.params.userid + ' was not found.');
 //    }
 //});
-app.put('/users/:username', async (req, res) => {
+app.put('/users/:username', passport.authenticate('jwt', { session: false }), async (req, res) => {
     console.log(req.params);
     await Users.findOneAndUpdate({ username: req.params.username }, {
         $set:
@@ -391,7 +413,7 @@ app.put('/users/:username', async (req, res) => {
 //        res.status(404).send('Movie couldnt be added to the favorite list');
 //    }
 //});
-app.post('/users/:username/movies/:MovieID', async (req, res) => {
+app.post('/users/:username/movies/:MovieID', passport.authenticate('jwt', { session: false }), async (req, res) => {
     await Users.findOneAndUpdate({ username: req.params.username }, {
         $push: { favorite_movies: req.params.MovieID }
     },
@@ -407,7 +429,7 @@ app.post('/users/:username/movies/:MovieID', async (req, res) => {
 
 
 //User removes a movie from favorie list   -----------------
-app.delete('/users/:username/movies/:MovieID', async (req, res) => {
+app.delete('/users/:username/movies/:MovieID', passport.authenticate('jwt', { session: false }), async (req, res) => {
     /* The findOne function ensures to return only the object details in the array. If simply 'find' was used, it would return the object in an array, and then the below code to access the object attributes wouldn't have been possible */
     /* Also we need to add 'await' below, so that this line of code is executed before moving forward(asynchronous function) */
     let user = await Users.findOne({ username: req.params.username })
@@ -430,7 +452,7 @@ app.delete('/users/:username/movies/:MovieID', async (req, res) => {
 //    }
 //});
 // Delete a user by username
-app.delete('/users/:username', async (req, res) => {
+app.delete('/users/:username', passport.authenticate('jwt', { session: false }), async (req, res) => {
 
     await Users.findOneAndDelete({ username: req.params.username })
         .then((user) => {
@@ -459,6 +481,12 @@ app.use((err, req, res, next) => {
 });
 
 
-app.listen(8080, () => {
+/* app.listen(8080, () => {
     console.log('The movie app has loaded and is listening on port 8080');
+}); */
+/* Above code with app.listen would only listen on port 8080 for localhost. With the below code, if nothing is found, it sets the port to a certain port number, which is needed when hosting code in the cloud */
+const port = process.env.PORT || 8080;
+app.listen(port, '0.0.0.0', () => {
+    console.log('Listening on Port ' + port);
 });
+
