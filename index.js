@@ -299,25 +299,25 @@ app.post('/movies', async (req, res) => {
   Birthday: Date
 }*/
 app.post('/users',
-/*// Validation logic here for request
-  //you can either use a chain of methods like .not().isEmpty()
-  //which means "opposite of isEmpty" in plain english "is not empty"
-  //or use .isLength({min: 5}) which means
-  //minimum value of 5 characters are only allowed
-  [
-    check('Username', 'Username is required').isLength({min: 5}),
-    check('Username', 'Username contains non alphanumeric characters - not allowed.').isAlphanumeric(),
-    check('Password', 'Password is required').not().isEmpty(),
-    check('Email', 'Email does not appear to be valid').isEmail()
-  ], ---Task 2.10----   */ async (req, res) => {
+    // Validation logic here for request
+    //you can either use a chain of methods like .not().isEmpty()
+    //which means "opposite of isEmpty" in plain english "is not empty"
+    //or use .isLength({min: 5}) which means
+    //minimum value of 5 characters are only allowed
+    [
+        check('username', 'Username is required').isLength({ min: 5 }),
+        check('username', 'Username contains non alphanumeric characters - not allowed.').isAlphanumeric(),
+        check('password', 'Password is required').not().isEmpty(),
+        check('email', 'Email does not appear to be valid').isEmail()
+    ], async (req, res) => {
+        console.log(req.params)
+        // check the validation object for errors
+        let errors = validationResult(req);
 
-        /*    // check the validation object for errors
-            let errors = validationResult(req);
-        
-            if (!errors.isEmpty()) {
-              return res.status(422).json({ errors: errors.array() });
-            }  ---Task 2.10----- */
-        /*    let hashedPassword = Users.hashPassword(req.body.Password);      Task 2.10  */
+        if (!errors.isEmpty()) {
+            return res.status(422).json({ errors: errors.array() });
+        }
+        let hashedPassword = Users.hashPassword(req.body.password);
         await Users.findOne({ username: req.body.username })
             .then((user) => {
                 if (user) {
@@ -327,8 +327,8 @@ app.post('/users',
                     Users
                         .create({
                             username: req.body.username,
-                            password: req.body.password,
-                            /*  password: hashedpassword,      Task 2.10   */
+                            /*      password: req.body.password,   */
+                            password: hashedPassword,
                             email: req.body.email,
                             birthday: req.body.birthday
                         })
@@ -371,30 +371,52 @@ app.get('/users/:username', async (req, res) => {
 //        res.status(404).send('User with the userid ' + req.params.userid + ' was not found.');
 //    }
 //});
-app.put('/users/:username', passport.authenticate('jwt', { session: false }), async (req, res) => {
-    console.log(req.params);
-    await Users.findOneAndUpdate({ username: req.params.username }, {
-        $set:
-        {
-            username: req.body.username,
-            password: req.body.password,
-            email: req.body.email,
-            birthday: req.body.birthday
+app.put('/users/:username',
+    // Validation logic here for request
+    //you can either use a chain of methods like .not().isEmpty()
+    //which means "opposite of isEmpty" in plain english "is not empty"
+    //or use .isLength({min: 5}) which means
+    //minimum value of 5 characters are only allowed
+    [
+        check('username', 'Username is required').isLength({ min: 5 }),
+        check('username', 'Username contains non alphanumeric characters - not allowed.').isAlphanumeric(),
+        check('password', 'Password is required').not().isEmpty(),
+        check('email', 'Email does not appear to be valid').isEmail()
+    ],
+    passport.authenticate('jwt', { session: false }), async (req, res) => {
+
+        console.log(req.params);
+        // check the validation object for errors
+        let errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            return res.status(422).json({ errors: errors.array() });
         }
-        /* Above code finds the user and updates it with the values passed from API */
-    },
-        { new: true }) // This line makes sure that the updated document is returned
+        let hashedPassword = Users.hashPassword(req.body.password);
 
-        .then((updatedUser) => {
-            console.log(updatedUser);
-            res.json(updatedUser);
-        })
-        .catch((err) => {
-            console.error(err);
-            res.status(500).send('Error: ' + err);
-        })
+        await Users.findOneAndUpdate({ username: req.params.username }, {
+            $set:
+            {
+                username: req.body.username,
+                /* password: req.body.password,  */
+                password: hashedPassword,
+                email: req.body.email,
+                birthday: req.body.birthday
+            }
+            /* Above code finds the user and updates it with the values passed from API */
+        },
+            { new: true }) // This line makes sure that the updated document is returned
 
-});
+            .then((updatedUser) => {
+                console.log(updatedUser);
+                res.json(updatedUser);
+            })
+            .catch((err) => {
+                console.error(err);
+                res.status(500).send('Error: ' + err);
+            })
+
+    });
 
 
 
