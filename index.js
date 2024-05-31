@@ -3,6 +3,8 @@ const Models = require('./models.js');
 
 const Movies = Models.Movie;
 const Users = Models.User;
+
+// The below 2 lines are used to define where the Database needs to connect. The dburl will either connect to the localhost on the local machine OR if there is a cloud hosted DN server like Mongo on Atlas, it would use that.
 const dburl = process.env.DATABASE_URL || 'mongodb://localhost:27017/cfdb'
 mongoose.connect(dburl, { useNewUrlParser: true, useUnifiedTopology: true });
 

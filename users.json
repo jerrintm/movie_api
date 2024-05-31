@@ -1,0 +1,7 @@
+{"_id":{"$oid":"660c81510fd4c946819f991e"},"username":"jane_smith","password":"smithy321","email":"jane@example.com","birthday":{"$date":"1988-11-20T00:00:00Z"},"favorite_movies":["660c77710fd4c946819f9912","660c77710fd4c946819f990c"]}
+{"_id":{"$oid":"660c81510fd4c946819f991f"},"username":"jane_smith","password":"securepass","email":"jane@example.com","birthday":{"$date":"1995-03-10T00:00:00Z"},"favorite_movies":["660c77710fd4c946819f990f","660c77710fd4c946819f9910"]}
+{"_id":{"$oid":"6626e488c86fe2c507c4f0d6"},"username":"test123456","password":"testpassword","email":"test@gmail.com","birthday":{"$date":"1995-04-10T04:00:00Z"},"favorite_movies":[],"__v":0}
+{"_id":{"$oid":"66305141a7e36b068b6658c0"},"username":"user6","password":"password123","email":"user6@test.com","birthday":{"$date":"1980-05-05T00:00:00Z"},"favorite_movies":[],"__v":0}
+{"_id":{"$oid":"6633a8c42ffd8e04e1f20ca1"},"username":"test1234567","password":"pass123456","email":"user44@example.com","birthday":{"$date":"1992-05-09T04:00:00Z"},"favorite_movies":[],"__v":0}
+{"_id":{"$oid":"663453cd46061d6b1ed0506f"},"username":"test12345678","password":"$2b$10$1HTOxGBCZRDfKcpwPlxZoedhOLOqVn/QCvxjRJDKXXnph5/t9YB8S","email":"user44@example.com","birthday":{"$date":"1992-05-09T04:00:00Z"},"favorite_movies":[],"__v":0}
+{"_id":{"$oid":"6634574746061d6b1ed05072"},"username":"test123456789","password":"$2b$10$cZo/8XT96ydXFiCgXbViXuUcasUcXqzMphmyBThs4gQUGG.HFdJcu","email":"user44@example.com","birthday":{"$date":"1992-05-09T04:00:00Z"},"favorite_movies":[],"__v":0}
