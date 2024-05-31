@@ -2,7 +2,9 @@ const mongoose = require('mongoose');
 const Models = require('./models.js');
 
 const Movies = Models.Movie;
-const Users = Models.User; mongoose.connect('mongodb://localhost:27017/cfdb', { useNewUrlParser: true, useUnifiedTopology: true });
+const Users = Models.User;
+const dburl = process.env.DATABASE_URL || 'mongodb://localhost:27017/cfdb'
+mongoose.connect(dburl, { useNewUrlParser: true, useUnifiedTopology: true });
 
 
 
