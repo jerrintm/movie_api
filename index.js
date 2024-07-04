@@ -26,7 +26,7 @@ app.use(cors());              /* This code will allow requests from all origins(
 let auth = require('./auth')(app);  /* To import auth.js file into this project. The app argument you're passing here, ensures that Express is available in your “auth.js” file as well. */
 
 const passport = require('passport');  /* This and below line is to import the passport.js file into this project */
-require('./passport');
+require('./passport');         //imports pasport.js
 
 const { check, validationResult } = require('express-validator');  /* Library imported for validating user input  */
 // create a write stream (in append mode)
@@ -153,7 +153,7 @@ let users = [
 //app.use('/documentation', express.static(public));
 
 
-//////get list of all movies  -----
+//////returns a list of all movies to users (read)  -----
 //app.get('/movies', (req, res) => {
 //    //  console.log("Movie List");
 //    res.json(movies);
@@ -206,7 +206,7 @@ app.get('/users', async (req, res) => {
     }
 });
 
-//get all details of a specific movie title ------
+//return all details of a specific movie title ------
 //app.get('/movies/:title', (req, res) => {
 //    res.json(movies.find((movie) => { return movie.title === req.params.title }));
 //});
@@ -224,7 +224,7 @@ app.get('/movies/:title', passport.authenticate('jwt', { session: false }), asyn
         });
 });
 
-//get details about a genre --------
+//return details about a genre (read)--------
 app.get('/genre/:name', passport.authenticate('jwt', { session: false }), async (req, res) => {
     console.log(req.params);  /* Code can be used to display contents passed from the API call using tools like postman */
     await Movies.findOne({ 'genre.name': req.params.name })
@@ -239,7 +239,7 @@ app.get('/genre/:name', passport.authenticate('jwt', { session: false }), async 
 
 
 
-//get all details of a specific director --------
+//return all details of a specific director (read) --------
 app.get('/directors/:name', passport.authenticate('jwt', { session: false }), async (req, res) => {
     console.log(req.params);
     await Movies.findOne({ 'director.Name': req.params.name })
@@ -279,7 +279,7 @@ app.post('/movies', async (req, res) => {
 });
 
 
-////// Adds data for a new user to our list of users. ------------
+////// Allow new users to register (create) ------------
 //app.post('/users', (req, res) => {
 //    let newuser = req.body;
 
@@ -364,7 +364,7 @@ app.get('/users/:username', async (req, res) => {
 
 
 
-////// Update the "username, password,email OR birthday" of a user  -------------------
+////// Allow users to Update the "username, password,email OR birthday" of a user (Update) -------------------
 //app.put('/users/:userid', (req, res) => {
 //    let user = users.find((user) => { return user.userid === req.params.userid });
 
@@ -409,7 +409,7 @@ app.put('/users/:username',
             }
             /* Above code finds the user and updates it with the values passed from API */
         },
-            { new: true }) // This line makes sure that the updated document is returned
+            { new: true }) // This line makes sure that the updated document is returned instead of original
 
             .then((updatedUser) => {
                 console.log(updatedUser);
@@ -424,7 +424,7 @@ app.put('/users/:username',
 
 
 
-////// User adds a movie to their favorite list  ----------------
+////// Allow User to add movies to their favorite list (create) ----------------
 
 //app.put('/users/:name/:FavoriteMovieTitle', (req, res) => {
 //    let user = users.find((user) => { return user.userid === req.params.name });
@@ -454,7 +454,7 @@ app.post('/users/:username/movies/:MovieID', passport.authenticate('jwt', { sess
 });
 
 
-//User removes a movie from favorie list   -----------------
+//Allow User to remove movie from favorite list   -----------------
 app.delete('/users/:username/movies/:MovieID', passport.authenticate('jwt', { session: false }), async (req, res) => {
     /* The findOne function ensures to return only the object details in the array. If simply 'find' was used, it would return the object in an array, and then the below code to access the object attributes wouldn't have been possible */
     /* Also we need to add 'await' below, so that this line of code is executed before moving forward(asynchronous function) */
@@ -468,7 +468,7 @@ app.delete('/users/:username/movies/:MovieID', passport.authenticate('jwt', { se
     }
 });
 
-////// Deletes a user from our list by ID   -------------
+////// Allow users to deregister (Delete)   -------------
 //app.delete('/users/:userid', (req, res) => {
 //    let user = users.find((user) => { return user.id === req.params.id });
 
@@ -499,7 +499,7 @@ app.get('/', (req, res) => {
     res.send('Welcome to Movie Flix homepage')
 });
 
-app.use(express.static('public'));
+app.use(express.static('public'));   //allows to access html pages from public folder
 
 app.use((err, req, res, next) => {
     console.error(err.stack);
@@ -511,8 +511,8 @@ app.use((err, req, res, next) => {
     console.log('The movie app has loaded and is listening on port 8080');
 }); */
 /* Above code with app.listen would only listen on port 8080 for localhost. With the below code, if nothing is found, it sets the port to a certain port number, which is needed when hosting code in the cloud */
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 8080;   //allows port number to change to a pre-configured port number, else uses default 8080.
 app.listen(port, '0.0.0.0', () => {
-    console.log('Listening on Port ' + port);
+    console.log('Your app is Listening on Port ' + port);
 });
 
