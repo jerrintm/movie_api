@@ -462,7 +462,7 @@ app.delete('/users/:username/movies/:MovieID', passport.authenticate('jwt', { se
         {
             $pull: { favorite_movies: req.params.MovieID }
         },
-        { new: true }
+        { new: true }  // This line makes sure that the updated document is returned
     ) //updated doc returned
         .then((updatedUser) => {
             res.json(updatedUser);
@@ -477,17 +477,17 @@ app.delete('/users/:username/movies/:MovieID', passport.authenticate('jwt', { se
 
     /* The findOne function ensures to return only the object details in the array. If simply 'find' was used, it would return the object in an array, and then the below code to access the object attributes wouldn't have been possible */
     /* Also we need to add 'await' below, so that this line of code is executed before moving forward(asynchronous function) */
-   // let user = await Users.findOne({ username: req.params.username })
-   //
-   // if (user) {
-   //     user.favorite_movies = user.favorite_movies.filter((movie) => { return movie.title !== req.params.MovieID });
-   //     res.status(201).send('user ' + req.params.username + ' has removed a movie from favorite list');
-   // } else {
-   //     res.status(404).send('Movie couldnt be removed from the favorite list');
-   // }
+    // let user = await Users.findOne({ username: req.params.username })
+    //
+    // if (user) {
+    //     user.favorite_movies = user.favorite_movies.filter((movie) => { return movie.title !== req.params.MovieID });
+    //     res.status(201).send('user ' + req.params.username + ' has removed a movie from favorite list');
+    // } else {
+    //     res.status(404).send('Movie couldnt be removed from the favorite list');
+    // }
 
-    
-});
+
+);
 
 ////// Allow users to deregister (Delete)   -------------
 //app.delete('/users/:userid', (req, res) => {
