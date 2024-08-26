@@ -458,13 +458,14 @@ app.post('/users/:username/movies/:MovieID', passport.authenticate('jwt', { sess
 app.delete('/users/:username/movies/:MovieID', passport.authenticate('jwt', { session: false }), async (req, res) => {
 
     await Users.findOneAndUpdate(
-        { Username: req.params.username },
+        { username: req.params.username },
         {
             $pull: { favorite_movies: req.params.MovieID }
         },
         { new: true }  // This line makes sure that the updated document is returned
     ) //updated doc returned
         .then((updatedUser) => {
+            // if
             res.json(updatedUser);
         })
         .catch((err) => {
